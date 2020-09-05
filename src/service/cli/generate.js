@@ -1,13 +1,19 @@
 'use strict';
 
+const path = require(`path`);
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const {ExitCode} = require(`../../constants`);
-
 const {getRandomInt, shuffle} = require(`../../utils`);
 
 const DEFAULT_COUNT = 1;
-const FILE_NAME = `mocks.json`;
+/* Позволяет сохранять mocks.json в корне проекта откуда бы ни был вызван service.js --generate */
+const ROOT_PATH = __dirname
+  .split(`src`)[1]
+  .split(`\\`)
+  .map(() => `..`)
+  .join(`/`);
+const FILE_NAME = `${path.resolve(__dirname, ROOT_PATH)}/mocks.json`;
 
 const TITLES = [
   `Продам книги Стивена Кинга`,
@@ -66,8 +72,8 @@ const SumRestrict = {
 const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)}.jpg`;
 
 const generateOffers = (count) => (
-  Array(count).fill({}).map(() => ({
-    category: [CATEGORIES[getRandomInt(0, CATEGORIES.length - 1)]],
+  Array.from({length: count}, () => ({
+    category: shuffle(CATEGORIES).slice(0, getRandomInt(1, CATEGORIES.length)),
     description: shuffle(SENTENCES).slice(1, 5).join(` `),
     picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
     title: TITLES[getRandomInt(0, TITLES.length - 1)],
@@ -84,7 +90,7 @@ module.exports = {
 
     if (countOffer > 1000) {
       console.error(chalk.red(`Не больше 1000 объявлений`));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
 
     const content = JSON.stringify(generateOffers(countOffer));
@@ -92,10 +98,10 @@ module.exports = {
     try {
       await fs.writeFile(FILE_NAME, content);
       console.info(chalk.green(`Operation success. File created.`));
-      process.exit(ExitCode.success);
+      process.exit(ExitCode.SUCCESS);
     } catch (err) {
       console.error(chalk.red(`Can't write data to file...`));
-      process.exit(ExitCode.error);
+      process.exit(ExitCode.ERROR);
     }
   }
 };
