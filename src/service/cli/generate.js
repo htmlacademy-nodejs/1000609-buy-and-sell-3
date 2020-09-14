@@ -1,19 +1,12 @@
 'use strict';
 
-const path = require(`path`);
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
 const {ExitCode} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
 
 const DEFAULT_COUNT = 1;
-/* Позволяет сохранять mocks.json в корне проекта откуда бы ни был вызван service.js --generate */
-const ROOT_PATH = __dirname
-  .split(`src`)[1]
-  .split(`\\`)
-  .map(() => `..`)
-  .join(`/`);
-const FILE_NAME = `${path.resolve(__dirname, ROOT_PATH)}/mocks.json`;
+const FILE_NAME = `mocks.json`;
 
 const TITLES = [
   `Продам книги Стивена Кинга`,
