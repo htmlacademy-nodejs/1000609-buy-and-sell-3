@@ -9,8 +9,14 @@ const ExitCode = {
   SUCCESS: 0,
 };
 
+const HttpCode = {
+  OK: 200,
+  NOT_FOUND: 404
+};
+
 module.exports = {
   DEFAULT_COMMAND,
   USER_ARGV_INDEX,
-  ExitCode
+  ExitCode,
+  HttpCode
 };
