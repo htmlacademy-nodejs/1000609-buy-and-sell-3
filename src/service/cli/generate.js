@@ -2,7 +2,8 @@
 
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
-const {ExitCode} = require(`../../constants`);
+const {nanoid} = require(`nanoid`);
+const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
 const {getRandomInt, shuffle} = require(`../../utils`);
 
 const DEFAULT_COUNT = 1;
@@ -41,6 +42,7 @@ const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)
 
 const generateOffers = (count, categories, sentences, titles) => (
   Array.from({length: count}, () => ({
+    id: nanoid(MAX_ID_LENGTH),
     category: shuffle(categories).slice(0, getRandomInt(1, categories.length)),
     description: shuffle(sentences).slice(1, 5).join(` `),
     picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
