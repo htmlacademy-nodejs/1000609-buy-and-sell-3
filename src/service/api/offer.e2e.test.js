@@ -180,3 +180,58 @@ describe(`API returns an offer with given id`, () => {
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`Offer's title is "Продам отличную подборку фильмов на VHS"`, () => expect(response.body.title).toBe(`Продам отличную подборку фильмов на VHS`));
 });
+
+describe(`API creates an offer if data is valid`, () => {
+  const newOffer = {
+    category: `Котики`,
+    title: `Дам погладить котика`,
+    description: `Дам погладить котика. Дорого. Не гербалайф`,
+    picture: `cat.jpg`,
+    type: `OFFER`,
+    sum: 100500
+  };
+
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .post(`/offers`)
+      .send(newOffer);
+  });
+
+  test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
+  test(`Returns offer created`, () => expect(response.body).toEqual(
+      expect.objectContaining(newOffer)
+  ));
+  test(`Offers count is changed`, async () => {
+    await request(app)
+      .get(`/offers`)
+      .expect((res) => expect(res.body.length).toBe(6));
+  });
+});
+
+describe(`API refuses to create an offer if data is invalid`, () => {
+  const newOffer = {
+    category: `Котики`,
+    title: `Дам погладить котика`,
+    description: `Дам погладить котика. Дорого. Не гербалайф`,
+    picture: `cat.jpg`,
+    type: `OFFER`,
+    sum: 100500
+  };
+
+  const app = createAPI();
+
+  test(`Without any required property response code is 400`, async () => {
+    for (const key of Object.keys(newOffer)) {
+      const badOffer = {...newOffer};
+      delete badOffer[key];
+      await request(app)
+        .post(`/offers`)
+        .send(badOffer)
+        .expect(HttpCode.BAD_REQUEST);
+    }
+  });
+});
