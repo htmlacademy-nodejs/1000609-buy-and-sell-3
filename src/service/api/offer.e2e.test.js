@@ -235,3 +235,69 @@ describe(`API refuses to create an offer if data is invalid`, () => {
     }
   });
 });
+
+describe(` API changes existent offer`, () => {
+  const newOffer = {
+    category: `Котики`,
+    title: `Дам погладить котика`,
+    description: `Дам погладить котика. Дорого. Не гербалайф`,
+    picture: `cat.jpg`,
+    type: `OFFER`,
+    sum: 100500
+  };
+
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .put(`/offers/Ah8YRD`)
+      .send(newOffer);
+  });
+
+  test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
+  test(`Returns changed offer`, () => expect(response.body).toEqual(
+      expect.objectContaining(newOffer)
+  ));
+  test(`Offer is really changed`, async () => {
+    await request(app)
+      .get(`/offers/Ah8YRD`)
+      .expect((res) => expect(res.body.title).toBe(`Дам погладить котика`));
+  });
+});
+
+test(`API returns status code 404 when trying to change non-existent offer`, async () => {
+  const validOffer = {
+    category: `Это`,
+    title: `валидный`,
+    description: `объект`,
+    picture: `объявления`,
+    type: `однако`,
+    sum: 404
+  };
+
+  const app = createAPI();
+
+  await request(app)
+    .put(`/offers/NOEXST`)
+    .send(validOffer)
+    .expect(HttpCode.NOT_FOUND);
+});
+
+test(`API returns status code 400 when trying to change an offer with invalid data`, async () => {
+  const invalidOffer = {
+    category: `Это`,
+    title: `невалидный`,
+    description: `объект`,
+    picture: `объявления`,
+    type: `нет поля sum`
+  };
+
+  const app = createAPI();
+
+  await request(app)
+    .put(`/offers/NOEXST`)
+    .send(invalidOffer)
+    .expect(HttpCode.BAD_REQUEST);
+});
