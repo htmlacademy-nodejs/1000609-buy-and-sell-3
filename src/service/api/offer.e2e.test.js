@@ -301,3 +301,30 @@ test(`API returns status code 400 when trying to change an offer with invalid da
     .send(invalidOffer)
     .expect(HttpCode.BAD_REQUEST);
 });
+
+describe(`API correctly deletes an offer`, () => {
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .delete(`/offers/LEJ5sB`);
+  });
+
+  test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
+  test(`Returns deleted offer`, () => expect(response.body.id).toBe(`LEJ5sB`));
+  test(`Offer count is 4 now`, async () => {
+    await request(app)
+      .get(`/offers`)
+      .expect((res) => expect(res.body.length).toBe(4));
+  });
+});
+
+test(`API refuses to delete non-existent offer`, async () => {
+  const app = createAPI();
+
+  await request(app)
+    .delete(`/offers/NOEXST`)
+    .expect(HttpCode.NOT_FOUND);
+});
