@@ -149,8 +149,8 @@ describe(`API returns offer based on search query`, () => {
   test(`Offer has correct id`, () => expect(response.body[0].id).toBe(`o0IC7c`));
 });
 
-test(`API returns code 404 if nothing is found`, () => {
-  request(app)
+test(`API returns code 404 if nothing is found`, async () => {
+  await request(app)
     .get(`/search`)
     .query({
       query: `Продам свою душу`
@@ -158,8 +158,8 @@ test(`API returns code 404 if nothing is found`, () => {
     .expect(HttpCode.NOT_FOUND);
 });
 
-test(`API returns 400 when query string is absent`, () => {
-  request(app)
+test(`API returns 400 when query string is absent`, async () => {
+  await request(app)
     .get(`/search`)
     .expect(HttpCode.BAD_REQUEST);
 });
