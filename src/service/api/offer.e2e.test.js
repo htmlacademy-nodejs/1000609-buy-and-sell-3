@@ -328,3 +328,98 @@ test(`API refuses to delete non-existent offer`, async () => {
     .delete(`/offers/NOEXST`)
     .expect(HttpCode.NOT_FOUND);
 });
+
+describe(`API returns a list of comments to given offer`, () => {
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .get(`/offers/LEJ5sB/comments`);
+  });
+
+  test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
+  test(`Returns list of 4 comments`, () => expect(response.body.length).toBe(4));
+  test(`First comment's id is "8nqhTI"`, () => expect(response.body[0].id).toBe(`8nqhTI`));
+});
+
+describe(`API creates a comment if data is valid`, () => {
+  const newComment = {
+    text: `Валидному комментарию достаточно этого поля`
+  };
+
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .post(`/offers/nawOGP/comments`)
+      .send(newComment);
+  });
+
+
+  test(`Status code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
+  test(`Returns comment created`, () => expect(response.body).toEqual(expect.objectContaining(newComment)));
+  test(`Comments count is changed`, async () => {
+    await request(app)
+        .get(`/offers/nawOGP/comments`)
+        .expect((res) => expect(res.body.length).toBe(1));
+  });
+});
+
+test(`API refuses to create a comment to non-existent offer and returns status code 404`, async () => {
+  const app = createAPI();
+
+  await request(app)
+    .post(`/offers/NOEXST/comments`)
+    .send({
+      text: `Неважно`
+    })
+    .expect(HttpCode.NOT_FOUND);
+});
+
+test(`API refuses to create a comment when data is invalid, and returns status code 400`, async () => {
+  const app = createAPI();
+
+  await request(app)
+    .post(`/offers/Ah8YRD/comments`)
+    .send({})
+    .expect(HttpCode.BAD_REQUEST);
+});
+
+describe(`API correctly deletes a comment`, () => {
+  const app = createAPI();
+
+  let response;
+
+  beforeAll(async () => {
+    response = await request(app)
+      .delete(`/offers/Ah8YRD/comments/zS53LT`);
+  });
+
+  test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
+  test(`Returns comment deleted`, () => expect(response.body.id).toBe(`zS53LT`));
+  test(`Comments count is 3 now`, async () => {
+    await request(app)
+        .get(`/offers/Ah8YRD/comments`)
+        .expect((res) => expect(res.body.length).toBe(2));
+  });
+});
+
+test(`API refuses to delete non-existent comment`, async () => {
+  const app = createAPI();
+
+  await request(app)
+    .delete(`/offers/GoXF4a/NOEXST`)
+    .expect(HttpCode.NOT_FOUND);
+});
+
+test(`API refuses to delete a comment to non-existent offer`, async () => {
+  const app = createAPI();
+
+  await request(app)
+    .delete(`/offers/NOEXST/comments/zS53LT`)
+    .expect(HttpCode.NOT_FOUND);
+});
