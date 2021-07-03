@@ -184,7 +184,7 @@ describe(`API returns an offer with given id`, () => {
 
 describe(`API creates an offer if data is valid`, () => {
   const newOffer = {
-    category: `Котики`,
+    category: [`Котики`],
     title: `Дам погладить котика`,
     description: `Дам погладить котика. Дорого. Не гербалайф`,
     picture: `cat.jpg`,
@@ -215,7 +215,7 @@ describe(`API creates an offer if data is valid`, () => {
 
 describe(`API refuses to create an offer if data is invalid`, () => {
   const newOffer = {
-    category: `Котики`,
+    category: [`Котики`],
     title: `Дам погладить котика`,
     description: `Дам погладить котика. Дорого. Не гербалайф`,
     picture: `cat.jpg`,
@@ -239,7 +239,7 @@ describe(`API refuses to create an offer if data is invalid`, () => {
 
 describe(` API changes existent offer`, () => {
   const newOffer = {
-    category: `Котики`,
+    category: [`Котики`],
     title: `Дам погладить котика`,
     description: `Дам погладить котика. Дорого. Не гербалайф`,
     picture: `cat.jpg`,
