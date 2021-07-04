@@ -315,7 +315,7 @@ describe(`API correctly deletes an offer`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`Returns deleted offer`, () => expect(response.body.id).toBe(`LEJ5sB`));
-  test(`Offer count is 4 now`, async () => {
+  test(`Offers count is 4 now`, async () => {
     await request(app)
       .get(`/offers`)
       .expect((res) => expect(res.body.length).toBe(4));
@@ -413,7 +413,7 @@ test(`API refuses to delete non-existent comment`, async () => {
   const app = createAPI();
 
   await request(app)
-    .delete(`/offers/GoXF4a/NOEXST`)
+    .delete(`/offers/GoXF4a/comments/NOEXST`)
     .expect(HttpCode.NOT_FOUND);
 });
 
