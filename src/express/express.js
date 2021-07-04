@@ -2,6 +2,7 @@
 
 const express = require(`express`);
 const path = require(`path`);
+const {HttpCode} = require(`../constants`);
 const mainRoutes = require(`./routes/main-routes`);
 const offersRoutes = require(`./routes/offers-routes`);
 const myRoutes = require(`./routes/my-routes`);
@@ -18,7 +19,7 @@ app.use(express.static(path.resolve(__dirname, PUBLIC_DIR)));
 app.use(`/`, mainRoutes);
 app.use(`/offers`, offersRoutes);
 app.use(`/my`, myRoutes);
-app.use((req, res) => res.status(400).render(`errors/400`));
-app.use((err, req, res, _next) => res.status(500).render(`errors/500`));
+app.use((req, res) => res.status(HttpCode.BAD_REQUEST).render(`errors/400`));
+app.use((err, req, res, _next) => res.status(HttpCode.INTERNAL_SERVER_ERROR).render(`errors/500`));
 
 app.listen(DEFAULT_PORT);
