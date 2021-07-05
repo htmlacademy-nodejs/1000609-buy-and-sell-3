@@ -9,7 +9,7 @@ head
   link(rel='stylesheet' href='/css/style.min.css')
 body
   mixin ticketLabel(type)
-    span.ticket-card__label #{type === 'OFFER' ? 'Куплю' : 'ПРОДАМ'}
+    span(class!=attributes.class || 'ticket-card__label') #{type === 'OFFER' ? 'Куплю' : 'ПРОДАМ'}
   include partials/header.pug
   block content
   include partials/footer.pug
