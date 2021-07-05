@@ -25,7 +25,7 @@ class API {
   }
 
   getOffer(id) {
-    return this._load(`/offer/${id}`);
+    return this._load(`/offers/${id}`);
   }
 
   search(query) {
