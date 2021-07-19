@@ -12,13 +12,14 @@ mainRouter.get(`/`, async (req, res) => {
 mainRouter.get(`/register`, (req, res) => res.render(`sign-up`));
 mainRouter.get(`/login`, (req, res) => res.render(`login`));
 mainRouter.get(`/search`, async (req, res) => {
+  const {search} = req.query;
+
   try {
-    const {search} = req.query;
     const results = await api.search(search);
 
-    res.render(`search-result`, {results});
+    res.render(`search-result`, {results, search});
   } catch (error) {
-    res.render(`search-result`, {results: []});
+    res.render(`search-result`, {results: [], search});
   }
 });
 
