@@ -13,7 +13,7 @@ module.exports = {
       --version:            выводит номер версии
       --help:               печатает этот текст
       --generate <count>:   формирует файл mocks.json
-      --fill:               формирует файл fill-db.sql
+      --fill <count>:       формирует файл fill-db.sql
       --server <port>:      запускает http-сервер
     `;
 
