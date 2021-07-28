@@ -20,7 +20,7 @@ SELECT offers.*,
     users.first_name,
     users.last_name,
     users.email
-FROM OFFERS
+FROM offers
     JOIN offer_categories ON offers.id = offer_categories.offer_id
     JOIN categories ON offer_categories.category_id = categories.id
     LEFT JOIN comments ON comments.offer_id = offers.id
@@ -35,7 +35,7 @@ SELECT offers.*,
     users.first_name,
     users.last_name,
     users.email
-FROM OFFERS
+FROM offers
     JOIN offer_categories ON offers.id = offer_categories.offer_id
     JOIN categories ON offer_categories.category_id = categories.id
     LEFT JOIN comments ON comments.offer_id = offers.id
