@@ -15,6 +15,27 @@ const getRandomInt = (min, max) => {
 };
 
 /**
+ * Возвращает массив, содержащий случайное количество
+ * элементов из переданного массива
+ *
+ * @param {Array} items
+ * @return {Array}
+ */
+const getRandomSubarray = (items) => {
+  items = items.slice();
+  let count = getRandomInt(1, items.length - 1);
+  const result = [];
+  while (count--) {
+    result.push(
+        ...items.splice(
+            getRandomInt(0, items.length - 1), 1
+        )
+    );
+  }
+  return result;
+};
+
+/**
  * Перетасовка массива по алгоритму
  * Фишера—Йетса.
  *
@@ -34,5 +55,6 @@ const shuffle = (someArray) => {
 
 module.exports = {
   getRandomInt,
+  getRandomSubarray,
   shuffle
 };
