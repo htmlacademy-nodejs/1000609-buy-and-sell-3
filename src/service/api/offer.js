@@ -88,7 +88,7 @@ module.exports = (app, offerService, commentService) => {
   });
 
   route.post(`/:offerId/comments`, [offerExist(offerService), commentValidator], async (req, res) => {
-    const {offerId} = res.params;
+    const {offerId} = req.params;
     const comment = await commentService.create(offerId, req.body);
 
     return res.status(HttpCode.CREATED)
