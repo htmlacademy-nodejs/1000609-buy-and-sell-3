@@ -24,8 +24,8 @@ class API {
     return this._load(`/offers`, {params: {comments}});
   }
 
-  getOffer(id) {
-    return this._load(`/offers/${id}`);
+  getOffer(id, comments) {
+    return this._load(`/offers/${id}`, {params: {comments}});
   }
 
   search(query) {

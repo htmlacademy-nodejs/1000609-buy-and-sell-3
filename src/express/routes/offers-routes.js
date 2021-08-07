@@ -30,7 +30,12 @@ offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   }
 });
 
-offersRouter.get(`/:id`, (req, res) => res.render(`offers/ticket`));
+offersRouter.get(`/:id`, async (req, res) => {
+  const {id} = req.params;
+  const offer = await api.getOffer(id, true);
+
+  res.render(`offers/ticket`, {offer});
+});
 
 offersRouter.get(`/edit/:id`, async (req, res) => {
   const {id} = req.params;

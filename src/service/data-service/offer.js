@@ -31,8 +31,14 @@ class OfferService {
     return offers.map((offer) => offer.get());
   }
 
-  findOne(id) {
-    return this._Offer.findByPk(id, {include: [Alias.CATEGORIES]});
+  findOne(id, needComments) {
+    const include = [Alias.CATEGORIES];
+
+    if (needComments) {
+      include.push(Alias.COMMENTS);
+    }
+
+    return this._Offer.findByPk(id, {include});
   }
 
   async update(id, offer) {
