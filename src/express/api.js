@@ -32,8 +32,8 @@ class API {
     return this._load(`/search`, {params: {query}});
   }
 
-  getCategories() {
-    return this._load(`/category`);
+  getCategories(count) {
+    return this._load(`/category`, {params: {count}});
   }
 
   createOffer(data) {
