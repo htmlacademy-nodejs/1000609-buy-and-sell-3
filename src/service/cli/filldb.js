@@ -5,8 +5,7 @@ const {ExitCode} = require(`../../constants`);
 const {getRandomInt, getRandomSubarray, shuffle} = require(`../../utils`);
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
-const defineModels = require(`../models`);
-const Alias = require(`../models/alias`);
+const initDatabase = require(`../lib/init-db`);
 
 const DEFAULT_COUNT = 1;
 
@@ -82,26 +81,15 @@ module.exports = {
 
     logger.info(`Connection to database established`);
 
-    const {Category, Offer} = defineModels(sequelize);
-
-    await sequelize.sync({force: true});
-
     const categories = await readContent(FILE_CATEGORIES_PATH);
     const sentences = await readContent(FILE_SENTENCES_PATH);
     const titles = await readContent(FILE_TITLES_PATH);
     const comments = await readContent(FILE_COMMENTS_PATH);
 
-    const categoryModels = await Category.bulkCreate(
-        categories.map((item) => ({name: item}))
-    );
-
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
-    const offers = generateOffers(countOffer, titles, categoryModels, sentences, comments);
-    const offerPromises = offers.map(async (offer) => {
-      const offerModel = await Offer.create(offer, {include: [Alias.COMMENTS]});
-      await offerModel.addCategories(offer.categories);
-    });
-    await Promise.all(offerPromises);
+    const offers = generateOffers(countOffer, titles, categories, sentences, comments);
+
+    return initDatabase(sequelize, {offers, categories});
   }
 };
