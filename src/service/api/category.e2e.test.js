@@ -2,15 +2,23 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
+const Sequelize = require(`sequelize`);
 
 const {HttpCode} = require(`../../constants`);
+const initDB = require(`../lib/init-db`);
 const category = require(`./category`);
 const DataService = require(`../data-service/category`);
 
-const mockData = [
+const mockCategories = [
+  `Посуда`,
+  `Разное`,
+  `Игры`,
+  `Животные`
+];
+
+const mockOffers = [
   {
-    "id": `iuuB9A`,
-    "category": [
+    "categories": [
       `Животные`,
       `Игры`
     ],
@@ -22,8 +30,7 @@ const mockData = [
     "sum": 33093
   },
   {
-    "id": `T4hTD1`,
-    "category": [
+    "categories": [
       `Животные`,
       `Посуда`,
       `Разное`,
@@ -31,7 +38,6 @@ const mockData = [
     ],
     "comments": [
       {
-        "id": `JFWjSJ`,
         "text": `Оплата наличными или перевод на карту? Почему в таком ужасном состоянии?`
       }
     ],
@@ -42,21 +48,17 @@ const mockData = [
     "sum": 58222
   },
   {
-    "id": `z2id4p`,
-    "category": [
+    "categories": [
       `Посуда`
     ],
     "comments": [
       {
-        "id": `nISikf`,
         "text": `Совсем немного... С чем связана продажа? Почему так дешёво?`
       },
       {
-        "id": `VSnl9A`,
         "text": `А сколько игр в комплекте? Неплохо, но дорого`
       },
       {
-        "id": `7cEHYX`,
         "text": `Совсем немного... С чем связана продажа? Почему так дешёво?`
       }
     ],
@@ -67,14 +69,12 @@ const mockData = [
     "sum": 51034
   },
   {
-    "id": `jr93Bw`,
-    "category": [
+    "categories": [
       `Посуда`,
       `Разное`
     ],
     "comments": [
       {
-        "id": `XmkYo1`,
         "text": `А сколько игр в комплекте? Продаю в связи с переездом. Отрываю от сердца.`
       }
     ],
@@ -85,8 +85,7 @@ const mockData = [
     "sum": 16244
   },
   {
-    "id": `mlElA7`,
-    "category": [
+    "categories": [
       `Животные`,
       `Разное`,
       `Игры`,
@@ -101,9 +100,15 @@ const mockData = [
   }
 ];
 
+const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
+
 const app = express();
 app.use(express.json());
-category(app, new DataService(mockData));
+
+beforeAll(async () => {
+  await initDB(mockDB, {categories: mockCategories, offers: mockOffers});
+  category(app, new DataService(mockDB));
+});
 
 describe(`API returns category list`, () => {
   let response;
@@ -114,9 +119,9 @@ describe(`API returns category list`, () => {
   });
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
-  test(`Returns list of 3 categories`, () => expect(response.body.length).toBe(4));
+  test(`Returns list of 4 categories`, () => expect(response.body.length).toBe(4));
   test(`Category names are "Посуда", "Игры", "Животные", "Разное"`, () => {
-    expect(response.body).toEqual(
+    expect(response.body.map((it) => it.name)).toEqual(
         expect.arrayContaining([`Посуда`, `Игры`, `Животные`, `Разное`])
     );
   });

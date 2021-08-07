@@ -2,15 +2,25 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
+const Sequelize = require(`sequelize`);
 
 const {HttpCode} = require(`../../constants`);
+const initDB = require(`../lib/init-db`);
 const search = require(`./search`);
 const DataService = require(`../data-service/search`);
 
-const mockData = [
+const mockCategories = [
+  `Книги`,
+  `Разное`,
+  `Посуда`,
+  `Игры`,
+  `Животные`,
+  `Журналы`
+];
+
+const mockOffers = [
   {
-    "id": `4dmuyP`,
-    "category": [
+    "categories": [
       `Животные`,
       `Посуда`,
       `Книги`,
@@ -19,19 +29,15 @@ const mockData = [
     ],
     "comments": [
       {
-        "id": `71Jg_J`,
         "text": `Неплохо, но дорого Вы что?! В магазине дешевле.`
       },
       {
-        "id": `5mdObp`,
         "text": `Вы что?! В магазине дешевле. С чем связана продажа? Почему так дешёво?`
       },
       {
-        "id": `utx6-u`,
         "text": `Оплата наличными или перевод на карту? Совсем немного...`
       },
       {
-        "id": `F3AoD6`,
         "text": `Продаю в связи с переездом. Отрываю от сердца. А где блок питания?`
       }
     ],
@@ -42,13 +48,11 @@ const mockData = [
     "sum": 36951
   },
   {
-    "id": `Eb6qPF`,
-    "category": [
+    "categories": [
       `Разное`
     ],
     "comments": [
       {
-        "id": `H3c22D`,
         "text": `Неплохо, но дорого Оплата наличными или перевод на карту?`
       }
     ],
@@ -59,18 +63,15 @@ const mockData = [
     "sum": 6799
   },
   {
-    "id": `aqjItr`,
-    "category": [
+    "categories": [
       `Журналы`,
       `Игры`
     ],
     "comments": [
       {
-        "id": `8ElHyL`,
         "text": `А сколько игр в комплекте? Почему в таком ужасном состоянии?`
       },
       {
-        "id": `I8jwz8`,
         "text": `Оплата наличными или перевод на карту? А сколько игр в комплекте?`
       }
     ],
@@ -81,8 +82,7 @@ const mockData = [
     "sum": 29098
   },
   {
-    "id": `o0IC7c`,
-    "category": [
+    "categories": [
       `Посуда`,
       `Журналы`,
       `Игры`,
@@ -92,15 +92,12 @@ const mockData = [
     ],
     "comments": [
       {
-        "id": `DR_RUz`,
         "text": `С чем связана продажа? Почему так дешёво? Оплата наличными или перевод на карту?`
       },
       {
-        "id": `40VxZA`,
         "text": `Совсем немного... А где блок питания?`
       },
       {
-        "id": `yhWioQ`,
         "text": `Почему в таком ужасном состоянии? Неплохо, но дорого`
       }
     ],
@@ -111,13 +108,11 @@ const mockData = [
     "sum": 15342
   },
   {
-    "id": `ufNpVF`,
-    "category": [
+    "categories": [
       `Журналы`
     ],
     "comments": [
       {
-        "id": `Fw-qkr`,
         "text": `Вы что?! В магазине дешевле. С чем связана продажа? Почему так дешёво?`
       }
     ],
@@ -129,9 +124,15 @@ const mockData = [
   }
 ];
 
+const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
+
 const app = express();
 app.use(express.json());
-search(app, new DataService(mockData));
+
+beforeAll(async () => {
+  await initDB(mockDB, {categories: mockCategories, offers: mockOffers});
+  search(app, new DataService(mockDB));
+});
 
 describe(`API returns offer based on search query`, () => {
   let response;
@@ -146,7 +147,7 @@ describe(`API returns offer based on search query`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`1 offer found`, () => expect(response.body.length).toBe(1));
-  test(`Offer has correct id`, () => expect(response.body[0].id).toBe(`o0IC7c`));
+  test(`Offer has correct title`, () => expect(response.body[0].title).toBe(`Продам новую приставку Sony Playstation 5`));
 });
 
 test(`API returns code 404 if nothing is found`, async () => {
