@@ -14,7 +14,7 @@ offersRouter.get(`/add`, async (req, res) => {
 offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   const {body, file} = req;
   const offerData = {
-    category: Array.isArray(body.category) ? body.category : [body.category],
+    categories: Array.isArray(body.category) ? body.category : [body.category],
     description: body.comment,
     picture: file.filename,
     title: body[`ticket-name`],
