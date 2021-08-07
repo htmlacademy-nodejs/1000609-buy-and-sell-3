@@ -3,7 +3,6 @@
 const DEFAULT_COMMAND = `--help`;
 const API_PREFIX = `/api`;
 const USER_ARGV_INDEX = 2;
-const MAX_ID_LENGTH = 6;
 
 const Env = {
   DEVELOPMENT: `development`,
@@ -27,7 +26,6 @@ module.exports = {
   DEFAULT_COMMAND,
   API_PREFIX,
   USER_ARGV_INDEX,
-  MAX_ID_LENGTH,
   Env,
   ExitCode,
   HttpCode
