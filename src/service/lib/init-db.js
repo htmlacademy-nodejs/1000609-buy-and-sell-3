@@ -21,6 +21,7 @@ module.exports = async (sequelize, {categories, offers}) => {
     await offerModel.addCategories(
         offer.categories.map((name) => categoryIdByName[name])
     );
-    await Promise.all(offerPromises);
   });
+
+  await Promise.all(offerPromises);
 };
