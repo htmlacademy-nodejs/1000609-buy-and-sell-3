@@ -292,7 +292,7 @@ test(`API returns status code 400 when trying to change an offer with invalid da
   const app = await createAPI();
 
   await request(app)
-    .put(`/offers/20`)
+    .put(`/offers/3`)
     .send(invalidOffer)
     .expect(HttpCode.BAD_REQUEST);
 });

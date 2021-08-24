@@ -58,7 +58,7 @@ const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)
 
 const generateOffers = (count, titles, categories, sentences, comments) => (
   Array.from({length: count}, () => ({
-    category: getRandomSubarray(categories),
+    categories: getRandomSubarray(categories),
     comments: generateComments(getRandomInt(CommentsRestrict.MIN, CommentsRestrict.MAX), comments),
     description: shuffle(sentences).slice(1, 5).join(` `),
     picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
