@@ -2,6 +2,7 @@
 
 const {Router} = require(`express`);
 const upload = require(`../middlewares/upload`);
+const {prepareErrors} = require(`../../utils`);
 const api = require(`../api`).getAPI();
 
 const offersRouter = new Router();
@@ -16,7 +17,7 @@ offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   const offerData = {
     categories: Array.isArray(body.category) ? body.category : [body.category],
     description: body.comment,
-    picture: file.filename,
+    picture: file && file.filename ? file.filename : null,
     title: body[`ticket-name`],
     type: body.action,
     sum: body.price,
@@ -25,8 +26,10 @@ offersRouter.post(`/add`, upload.single(`avatar`), async (req, res) => {
   try {
     await api.createOffer(offerData);
     res.redirect(`/my`);
-  } catch (e) {
-    res.redirect(`back`);
+  } catch (err) {
+    const validationMessages = prepareErrors(err);
+    const categories = await api.getCategories();
+    res.render(`offers/new-ticket`, {categories, validationMessages});
   }
 });
 

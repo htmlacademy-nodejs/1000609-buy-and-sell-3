@@ -53,8 +53,20 @@ const shuffle = (someArray) => {
   return someArray;
 };
 
+/**
+ * Функция разделяет строку с ошибками
+ * и преобразует её в массив
+ *
+ * @param {Error} error
+ * @return {Array}
+ */
+const prepareErrors = (error) => {
+  return error.response.data.split(`\n`);
+};
+
 module.exports = {
   getRandomInt,
   getRandomSubarray,
-  shuffle
+  shuffle,
+  prepareErrors
 };
