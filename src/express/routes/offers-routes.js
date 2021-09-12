@@ -45,7 +45,7 @@ offersRouter.get(`/:id`, async (req, res) => {
   const {id} = req.params;
   const offer = await api.getOffer(id, true);
 
-  res.render(`offers/ticket`, {offer});
+  res.render(`offers/ticket`, {id, offer});
 });
 
 offersRouter.get(`/edit/:id`, async (req, res) => {
@@ -73,6 +73,20 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
     const validationMessages = prepareErrors(err);
     const [offer, categories] = await getEditOfferData(id);
     res.render(`offers/ticket-edit`, {id, offer, categories, validationMessages});
+  }
+});
+
+offersRouter.post(`/:id/comments`, upload.single(`comment`), async (req, res) => {
+  const {id} = req.params;
+  const {comment} = req.body;
+
+  try {
+    await api.createComment(id, {text: comment});
+    res.redirect(`/offers/${id}`);
+  } catch (err) {
+    const validationMessages = prepareErrors(err);
+    const offer = await api.getOffer(id, true);
+    res.render(`offers/ticket`, {id, offer, validationMessages});
   }
 });
 
