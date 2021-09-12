@@ -64,7 +64,7 @@ body
           li
             a(href=`${prefix}page=${page + 1}`) Вперёд
 
-  mixin insertErrorMessage(messages)
+  mixin insertErrorMessages(messages)
     if messages
       each message of messages
         .server-error #{message}
