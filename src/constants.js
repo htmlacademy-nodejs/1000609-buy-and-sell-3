@@ -22,11 +22,19 @@ const HttpCode = {
   INTERNAL_SERVER_ERROR: 500
 };
 
+const HttpMethod = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  DELETE: `DELETE`
+};
+
 module.exports = {
   DEFAULT_COMMAND,
   API_PREFIX,
   USER_ARGV_INDEX,
   Env,
   ExitCode,
-  HttpCode
+  HttpCode,
+  HttpMethod
 };
