@@ -76,7 +76,7 @@ offersRouter.post(`/edit/:id`, upload.single(`avatar`), async (req, res) => {
   }
 });
 
-offersRouter.post(`/:id/comments`, upload.single(`comment`), async (req, res) => {
+offersRouter.post(`/:id/comments`, async (req, res) => {
   const {id} = req.params;
   const {comment} = req.body;
 
