@@ -5,6 +5,7 @@ const {ExitCode} = require(`../../constants`);
 const {getRandomInt, getRandomSubarray, shuffle} = require(`../../utils`);
 const {getLogger} = require(`../lib/logger`);
 const sequelize = require(`../lib/sequelize`);
+const passwordUtils = require(`../lib/password`);
 const initDatabase = require(`../lib/init-db`);
 
 const DEFAULT_COUNT = 1;
@@ -46,8 +47,9 @@ const readContent = async (filePath) => {
   }
 };
 
-const generateComments = (count, comments) => (
+const generateComments = (count, comments, users) => (
   Array.from({length: count}, () => ({
+    user: users[getRandomInt(0, users.length - 1)].email,
     text: shuffle(comments)
       .slice(0, getRandomInt(1, 3))
       .join(` `),
@@ -56,10 +58,11 @@ const generateComments = (count, comments) => (
 
 const getPictureFileName = (number) => `item${number.toString().padStart(2, `0`)}.jpg`;
 
-const generateOffers = (count, titles, categories, sentences, comments) => (
+const generateOffers = (count, titles, categories, sentences, comments, users) => (
   Array.from({length: count}, () => ({
+    user: users[getRandomInt(0, users.length - 1)].email,
     categories: getRandomSubarray(categories),
-    comments: generateComments(getRandomInt(CommentsRestrict.MIN, CommentsRestrict.MAX), comments),
+    comments: generateComments(getRandomInt(CommentsRestrict.MIN, CommentsRestrict.MAX), comments, users),
     description: shuffle(sentences).slice(1, 5).join(` `),
     picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
     title: titles[getRandomInt(0, titles.length - 1)],
@@ -85,11 +88,25 @@ module.exports = {
     const sentences = await readContent(FILE_SENTENCES_PATH);
     const titles = await readContent(FILE_TITLES_PATH);
     const comments = await readContent(FILE_COMMENTS_PATH);
+    const users = [
+      {
+        name: `Иван Иванов`,
+        email: `ivanov@example.com`,
+        passwordHash: await passwordUtils.hash(`ivanov`),
+        avatar: `avatar01.jpg`
+      },
+      {
+        name: `Пётр Петров`,
+        email: `petrov@example.com`,
+        passwordHash: await passwordUtils.hash(`petrov`),
+        avatar: `avatar02.jpg`
+      }
+    ];
 
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
-    const offers = generateOffers(countOffer, titles, categories, sentences, comments);
+    const offers = generateOffers(countOffer, titles, categories, sentences, comments, users);
 
-    return initDatabase(sequelize, {offers, categories});
+    return initDatabase(sequelize, {offers, categories, users});
   }
 };
