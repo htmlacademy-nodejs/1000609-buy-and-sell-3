@@ -11,7 +11,8 @@ const ErrorOfferMessage = {
   DESCRIPTION_MAX: `Описание не может содержать более 1000 символов`,
   PICTURE: `Изображение не выбрано или тип изображения не поддерживается`,
   TYPE: `Не выбран ни один тип объявления`,
-  SUM: `Сумма не может быть меньше 100`
+  SUM: `Сумма не может быть меньше 100`,
+  USER_ID: `Некорректный идентификатор пользователя`
 };
 
 const schema = Joi.object({
@@ -36,6 +37,9 @@ const schema = Joi.object({
   }),
   sum: Joi.number().integer().greater(100).required().messages({
     'number.greater': ErrorOfferMessage.SUM
+  }),
+  userId: Joi.number().integer().positive().required().messages({
+    'number.base': ErrorOfferMessage.USER_ID
   })
 });
 
