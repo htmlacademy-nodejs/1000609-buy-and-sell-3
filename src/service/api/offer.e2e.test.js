@@ -6,6 +6,7 @@ const Sequelize = require(`sequelize`);
 
 const {HttpCode} = require(`../../constants`);
 const initDB = require(`../lib/init-db`);
+const passwordUtils = require(`../lib/password`);
 const offer = require(`./offer`);
 const DataService = require(`./../data-service/offer`);
 const CommentService = require(`./../data-service/comment`);
@@ -19,8 +20,24 @@ const mockCategories = [
   `Журналы`
 ];
 
+const mockUsers = [
+  {
+    name: `Иван Иванов`,
+    email: `ivanov@example.com`,
+    passwordHash: passwordUtils.hashSync(`ivanov`),
+    avatar: `avatar01.jpg`
+  },
+  {
+    name: `Пётр Петров`,
+    email: `petrov@example.com`,
+    passwordHash: passwordUtils.hashSync(`petrov`),
+    avatar: `avatar02.jpg`
+  }
+];
+
 const mockOffers = [
   {
+    "user": `petrov@example.com`,
     "categories": [
       `Игры`,
       `Посуда`,
@@ -31,12 +48,15 @@ const mockOffers = [
     ],
     "comments": [
       {
+        "user": `ivanov@example.com`,
         "text": `А где блок питания? Продаю в связи с переездом. Отрываю от сердца.`
       },
       {
+        "user": `petrov@example.com`,
         "text": `Вы что?! В магазине дешевле. Совсем немного...`
       },
       {
+        "user": `ivanov@example.com`,
         "text": `А сколько игр в комплекте? Неплохо, но дорого`
       }
     ],
@@ -47,17 +67,21 @@ const mockOffers = [
     "sum": 98394
   },
   {
+    "user": `ivanov@example.com`,
     "categories": [
       `Книги`
     ],
     "comments": [
       {
+        "user": `petrov@example.com`,
         "text": `Продаю в связи с переездом. Отрываю от сердца. Оплата наличными или перевод на карту?`
       },
       {
+        "user": `petrov@example.com`,
         "text": `А сколько игр в комплекте? Продаю в связи с переездом. Отрываю от сердца.`
       },
       {
+        "user": `petrov@example.com`,
         "text": `Почему в таком ужасном состоянии? Совсем немного...`
       }
     ],
@@ -68,6 +92,7 @@ const mockOffers = [
     "sum": 68150
   },
   {
+    "user": `petrov@example.com`,
     "categories": [
       `Журналы`,
       `Разное`,
@@ -77,15 +102,19 @@ const mockOffers = [
     ],
     "comments": [
       {
+        "user": `ivanov@example.com`,
         "text": `Совсем немного... Оплата наличными или перевод на карту?`
       },
       {
+        "user": `petrov@example.com`,
         "text": `Вы что?! В магазине дешевле. С чем связана продажа? Почему так дешёво?`
       },
       {
+        "user": `petrov@example.com`,
         "text": `Продаю в связи с переездом. Отрываю от сердца. Вы что?! В магазине дешевле.`
       },
       {
+        "user": `ivanov@example.com`,
         "text": `Совсем немного... А где блок питания?`
       }
     ],
@@ -96,6 +125,7 @@ const mockOffers = [
     "sum": 96315
   },
   {
+    "user": `ivanov@example.com`,
     "categories": [
       `Разное`,
       `Животные`,
@@ -111,6 +141,7 @@ const mockOffers = [
     "sum": 20810
   },
   {
+    "user": `petrov@example.com`,
     "categories": [
       `Книги`,
       `Журналы`,
@@ -121,12 +152,15 @@ const mockOffers = [
     ],
     "comments": [
       {
+        "user": `ivanov@example.com`,
         "text": `А где блок питания? Продаю в связи с переездом. Отрываю от сердца.`
       },
       {
+        "user": `ivanov@example.com`,
         "text": `С чем связана продажа? Почему так дешёво? Неплохо, но дорого`
       },
       {
+        "user": `ivanov@example.com`,
         "text": `Неплохо, но дорого А где блок питания?`
       }
     ],
@@ -140,7 +174,7 @@ const mockOffers = [
 
 const createAPI = async () => {
   const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
-  await initDB(mockDB, {categories: mockCategories, offers: mockOffers});
+  await initDB(mockDB, {categories: mockCategories, offers: mockOffers, users: mockUsers});
   const app = express();
   app.use(express.json());
   offer(app, new DataService(mockDB), new CommentService(mockDB));
@@ -158,9 +192,6 @@ describe(`API returns a list of all offers`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`Returns a list of 5 offers`, () => expect(response.body.length).toBe(5));
-  test(`First offer's title equals "Продам отличную подборку фильмов на VHS"`, () => {
-    expect(response.body[0].title).toBe(`Продам отличную подборку фильмов на VHS`);
-  });
 });
 
 describe(`API returns an offer with given id`, () => {
@@ -185,7 +216,8 @@ describe(`API creates an offer if data is valid`, () => {
     description: `Дам погладить котика. Дорого. Не гербалайф. К лотку приучен.`,
     picture: `cat.jpg`,
     type: `OFFER`,
-    sum: 100500
+    sum: 100500,
+    userId: 1
   };
 
   let app;
@@ -213,7 +245,8 @@ describe(`API refuses to create an offer if data is invalid`, () => {
     description: `Дам погладить котика. Дорого. Не гербалайф. К лотку приучен.`,
     picture: `cat.jpg`,
     type: `OFFER`,
-    sum: 100500
+    sum: 100500,
+    userId: 1
   };
 
   let app;
@@ -271,7 +304,8 @@ describe(`API changes existent offer`, () => {
     description: `Дам погладить котика. Дорого. Не гербалайф. К лотку приучен.`,
     picture: `cat.jpg`,
     type: `OFFER`,
-    sum: 100500
+    sum: 100500,
+    userId: 1
   };
 
   let app;
@@ -299,7 +333,8 @@ test(`API returns status code 404 when trying to change non-existent offer`, asy
     description: `объект объявления, однако поскольку такого объявления в базе нет`,
     picture: `мы получим 404`,
     type: `SALE`,
-    sum: 404
+    sum: 404,
+    userId: 1
   };
 
   const app = await createAPI();
@@ -316,7 +351,8 @@ test(`API returns status code 400 when trying to change an offer with invalid da
     title: `Это невалидный`,
     description: `объект`,
     picture: `объявления`,
-    type: `нет поля sum`
+    type: `нет поля sum`,
+    userId: 1
   };
 
   const app = await createAPI();
@@ -371,7 +407,8 @@ describe(`API returns a list of comments to given offer`, () => {
 
 describe(`API creates a comment if data is valid`, () => {
   const newComment = {
-    text: `Валидному комментарию достаточно этого поля`
+    text: `Валидному комментарию достаточно этих полей`,
+    userId: 1
   };
 
   let app;
@@ -405,11 +442,15 @@ test(`API refuses to create a comment to non-existent offer and returns status c
 });
 
 test(`API refuses to create a comment when data is invalid, and returns status code 400`, async () => {
+  const invalidComment = {
+    text: `Не указан userId`
+  };
+
   const app = await createAPI();
 
   await request(app)
     .post(`/offers/2/comments`)
-    .send({})
+    .send(invalidComment)
     .expect(HttpCode.BAD_REQUEST);
 });
 
