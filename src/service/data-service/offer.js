@@ -5,6 +5,8 @@ const Alias = require(`../models/alias`);
 class OfferService {
   constructor(sequelize) {
     this._Offer = sequelize.models.Offer;
+    this._Comment = sequelize.models.Comment;
+    this._User = sequelize.models.User;
   }
 
   async create(offerData) {
@@ -21,21 +23,68 @@ class OfferService {
   }
 
   async findAll(needComments) {
-    const include = [Alias.CATEGORIES];
+    const include = [
+      Alias.CATEGORIES,
+      {
+        model: this._User,
+        as: Alias.USERS,
+        attributes: {
+          exclude: [`passwordHash`]
+        }
+      }
+    ];
 
     if (needComments) {
-      include.push(Alias.COMMENTS);
+      include.push({
+        model: this._Comment,
+        as: Alias.COMMENTS,
+        include: [
+          {
+            model: this._User,
+            as: Alias.USERS,
+            attributes: {
+              exclude: [`passwordHash`]
+            }
+          }
+        ]
+      });
     }
 
-    const offers = await this._Offer.findAll({include});
+    const offers = await this._Offer.findAll({
+      include,
+      order: [
+        [`createdAt`, `DESC`]
+      ]
+    });
     return offers.map((offer) => offer.get());
   }
 
   findOne(id, needComments) {
-    const include = [Alias.CATEGORIES];
+    const include = [
+      Alias.CATEGORIES,
+      {
+        model: this._User,
+        as: Alias.USERS,
+        attributes: {
+          exclude: [`passwordHash`]
+        }
+      }
+    ];
 
     if (needComments) {
-      include.push(Alias.COMMENTS);
+      include.push({
+        model: this._Comment,
+        as: Alias.COMMENTS,
+        include: [
+          {
+            model: this._User,
+            as: Alias.USERS,
+            attributes: {
+              exclude: [`passwordHash`]
+            }
+          }
+        ]
+      });
     }
 
     return this._Offer.findByPk(id, {include});
@@ -45,7 +94,16 @@ class OfferService {
     const {count, rows} = await this._Offer.findAndCountAll({
       limit,
       offset,
-      include: [Alias.CATEGORIES],
+      include: [
+        Alias.CATEGORIES,
+        {
+          model: this._User,
+          as: Alias.USERS,
+          attributes: {
+            exclude: [`passwordHash`]
+          }
+        }
+      ],
       order: [
         [`createdAt`, `DESC`]
       ],
